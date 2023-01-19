@@ -1,0 +1,9 @@
+#Project files
+test.py
+
+# data
+*.txt
+*.csv
+
+#directories
+DATA_DL/
