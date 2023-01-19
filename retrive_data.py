@@ -9,7 +9,8 @@ class DataDownloader:
     def __init__(self, HUC8_code, name):
         self.HUC8_code = HUC8_code
         self.name = name
-        self.link = "https://ebfedata.s3.amazonaws.com/"+self.HUC8_code+"_"+self.name+"/"+self.HUC8_code+"_SpatialData.zip"
+        self.gdb_link = "https://ebfedata.s3.amazonaws.com/"+self.HUC8_code+"_"+self.name+"/"+self.HUC8_code+"_SpatialData.zip"
+        self.hec_link = "https://ebfedata.s3.amazonaws.com/"+self.HUC8_code+"_"+self.name+"/"+self.HUC8_code+"_Models.zip"
 
     def downLoad(self):
         """
@@ -17,6 +18,7 @@ class DataDownloader:
         """
         # Directories
         geodatabase_download_directory = "GDP_DL"
+        hec_ras_download_directory = "HEC_RAS_DL"
         Parent_download_directory = "DATA_DL"
         path = Path.cwd()
 
@@ -34,19 +36,31 @@ class DataDownloader:
             os.mkdir(save_GDP_path)
             print("save path created")
 
+        save_HEC_RAS_path = os.path.join(path, Parent_download_directory, hec_ras_download_directory)
+        if os.path.exists(save_HEC_RAS_path):
+            print("save path exists")
+        else:
+            os.mkdir(save_HEC_RAS_path)
+            print("save path created")
+
         save_GDP_path = os.path.join(save_GDP_path, self.HUC8_code+"_"+self.name)
+        save_HEC_RAS_path = os.path.join(save_HEC_RAS_path, self.HUC8_code+"_"+self.name)
 
         # build the url, download and extract the data
         try:   
-            read_url = requests.get(self.link)
+            # Geo-database file
+            read_url = requests.get(self.gdb_link)
             zip_file = zipfile.ZipFile(io.BytesIO(read_url.content))
+            zip_file.extractall(save_GDP_path)
+
+            # Hec_Ras model file
+            read_url = requests.get(self.hec_link)
+            zip_file = zipfile.ZipFile(io.BytesIO(read_url.content))
+            zip_file.extractall(save_HEC_RAS_path)
         except:
             print("invalid url >> cehck servers")
 
-                
-        zip_file.extractall(save_GDP_path)
-
-        print('Done!')
+        print('Download Complete')
 
 # A driver class
 class RunDL:
